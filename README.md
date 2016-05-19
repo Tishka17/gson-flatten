@@ -1,5 +1,10 @@
 # gson-flatten
-To use library you should register it in your gson builder:
+To use library you should add it in gradle:
+```gradle
+    compile 'org.itishka.gson-flatten:gson-flatten:0.1'
+```
+
+Then register it in your gson builder:
 ```java
 final Gson gson = new GsonBuilder()
           .registerTypeAdapterFactory(new FlattenTypeAdapterFactory())
