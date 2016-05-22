@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Created by Tishka17 on 20.05.2016.
  */
-public class SerializerTests {
+public class SerializerOneTest {
     private class ClassFlat {
         @Flatten("x::y")
         int test;
@@ -40,11 +40,11 @@ public class SerializerTests {
         final Gson gson_default = new Gson();
         String res = gson.toJson(one);
         assertNotNull(res);
-        assertNotEquals(res, "");
+        assertNotEquals("", res);
         ClassComplex complex = gson_default.fromJson(res, ClassComplex.class);
-        assertNull(complex.test);
-        assertNull(complex.y);
         assertNotNull(complex.x);
         assertEquals(complex.x.y, one.test);
+        assertNull(complex.test);
+        assertNull(complex.y);
     }
 }

@@ -25,9 +25,32 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
         final List<FlattenCacheItem> cache = buildCache(type.getRawType(), gson);
 
         TypeAdapter<T> result = new TypeAdapter<T>() {
+            private void setElement(JsonObject root, String[] path, JsonElement data) {
+                JsonObject element = root;
+                for (int i = 0; i < path.length - 1; i++) {
+                    JsonObject object = element.getAsJsonObject(path[i]);
+                    if (object==null) {
+                        object = new JsonObject();
+                        element.add(path[i], object);
+                    }
+                    element = object;
+                }
+                element.add(path[path.length - 1], data);
+            }
+
             @Override
             public void write(JsonWriter out, T value) throws IOException {
-                delegateAdapter.write(out, value);
+                JsonElement res = delegateAdapter.toJsonTree(value);
+                if (res.isJsonObject()) {
+                    JsonObject object = res.getAsJsonObject();
+                    for (FlattenCacheItem cacheItem : cache) {
+                        JsonElement data = object.get(cacheItem.name);
+                        object.remove(cacheItem.name);
+                        setElement(object, cacheItem.path, data);
+                    }
+                    res = object;
+                }
+                gson.toJson(res, out);
             }
 
             @Override
