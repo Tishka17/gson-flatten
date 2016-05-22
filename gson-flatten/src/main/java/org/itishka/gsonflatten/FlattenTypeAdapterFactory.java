@@ -29,7 +29,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                 JsonObject element = root;
                 for (int i = 0; i < path.length - 1; i++) {
                     JsonObject object = element.getAsJsonObject(path[i]);
-                    if (object==null) {
+                    if (object == null) {
                         object = new JsonObject();
                         element.add(path[i], object);
                     }
@@ -101,9 +101,20 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
             flatten = field.getAnnotation(Flatten.class);
             path = flatten.value();
             type = field.getGenericType();
-            cacheItem = new FlattenCacheItem(path.split("::"), type, gson.getAdapter(type.getClass()), field.getName());
+            cacheItem = new FlattenCacheItem(path.split("::", -1), type, gson.getAdapter(type.getClass()), field.getName());
+            //check path
+            for (int i = 0; i < cacheItem.path.length - 1; i++) {
+                if (cacheItem.path[i] == null || cacheItem.path[i].length() == 0) {
+                    throw new RuntimeException("Intermediate path items cannot be empty, found " + path);
+                }
+            }
+            int i = cacheItem.path.length - 1;
+            if (cacheItem.path[i] == null || cacheItem.path[i].length() == 0) {
+                cacheItem.path[i] = cacheItem.name;
+            }
             cache.add(cacheItem);
         }
+
         return cache;
     }
 
