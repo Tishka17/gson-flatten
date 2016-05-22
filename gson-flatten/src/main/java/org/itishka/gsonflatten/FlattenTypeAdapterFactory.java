@@ -12,9 +12,8 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Tishka17 on 18.05.2016.
@@ -23,7 +22,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         final TypeAdapter<T> delegateAdapter = gson.getDelegateAdapter(this, type);
         final TypeAdapter<JsonElement> defaultAdapter = gson.getAdapter(JsonElement.class);
-        final Map<Field, FlattenCacheItem> cache = buildCache(type.getRawType(), gson);
+        final List<FlattenCacheItem> cache = buildCache(type.getRawType(), gson);
 
         TypeAdapter<T> result = new TypeAdapter<T>() {
             @Override
@@ -39,9 +38,8 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                 if (!rootElement.isJsonObject())
                     return delegateAdapter.fromJsonTree(rootElement);
                 JsonObject root = rootElement.getAsJsonObject();
-                for (Field f : cache.keySet()) {
+                for (FlattenCacheItem cacheElement : cache) {
                     JsonElement element = root;
-                    FlattenCacheItem cacheElement = cache.get(f);
                     for (String s : cacheElement.path) {
                         if (element.isJsonObject()) {
                             element = element.getAsJsonObject().get(s);
@@ -50,7 +48,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                             break;
                         }
                     }
-                    rootElement.getAsJsonObject().add(f.getName(), element);// FIXME: 19.05.2016 serializedName
+                    rootElement.getAsJsonObject().add(cacheElement.name, element);// FIXME: 19.05.2016 serializedName
                 }
                 T data = delegateAdapter.fromJsonTree(rootElement);
                 return data;
@@ -61,8 +59,8 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
     }
 
 
-    private static Map<Field, FlattenCacheItem> buildCache(Class<?> root, Gson gson) {
-        Map<Field, FlattenCacheItem> cache = new HashMap<>();
+    private static ArrayList<FlattenCacheItem> buildCache(Class<?> root, Gson gson) {
+        ArrayList<FlattenCacheItem> cache = new ArrayList<>();
         final Field[] fields = root.getDeclaredFields();
         if (fields == null || fields.length == 0) {
             return cache;
@@ -80,8 +78,8 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
             flatten = field.getAnnotation(Flatten.class);
             path = flatten.value();
             type = field.getGenericType();
-            cacheItem = new FlattenCacheItem(path.split("::"), type, gson.getAdapter(type.getClass()));
-            cache.put(field, cacheItem);
+            cacheItem = new FlattenCacheItem(path.split("::"), type, gson.getAdapter(type.getClass()), field.getName());
+            cache.add(cacheItem);
         }
         return cache;
     }
@@ -90,10 +88,12 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
 
         final String[] path;
         final TypeAdapter adapter;
+        final String name;
 
-        private FlattenCacheItem(String[] path, Type type, TypeAdapter adapter) {
+        private FlattenCacheItem(String[] path, Type type, TypeAdapter adapter, String name) {
             this.path = path;
             this.adapter = adapter;
+            this.name = name;
         }
     }
 }
