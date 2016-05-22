@@ -1,3 +1,6 @@
+[ ![gson-flatten](https://api.bintray.com/packages/tishka17/maven/gson-flatten/images/download.svg) ](https://bintray.com/tishka17/mavengson-flatten/_latestVersion)
+
+
 # gson-flatten
 To use library you should add it in gradle:
 ```gradle
