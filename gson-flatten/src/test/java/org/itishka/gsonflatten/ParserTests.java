@@ -1,7 +1,6 @@
 package org.itishka.gsonflatten;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
 import org.junit.Test;
@@ -20,9 +19,7 @@ public class ParserTests {
     @Test
     public void test_parse_one() {
         String one = "{'x':{'y':1}}";
-        final Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new FlattenTypeAdapterFactory())
-                .create();
+        final Gson gson = Helper.createFlatteningGson();
         ClassOne classOne = gson.fromJson(one, ClassOne.class);
         assertEquals(classOne.test, 1);
     }
@@ -40,9 +37,7 @@ public class ParserTests {
     @Test
     public void test_parse_two() {
         String one = "{'x':{'y':1, 'z':2}, 'no':-1}";
-        final Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new FlattenTypeAdapterFactory())
-                .create();
+        final Gson gson = Helper.createFlatteningGson();
         ClassTwo classTwo = gson.fromJson(one, ClassTwo.class);
         assertEquals(1, classTwo.testY);
         assertEquals(2, classTwo.testZ);

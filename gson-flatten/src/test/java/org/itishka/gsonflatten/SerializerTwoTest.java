@@ -1,7 +1,6 @@
 package org.itishka.gsonflatten;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
 import org.junit.Test;
@@ -43,11 +42,9 @@ public class SerializerTwoTest {
         one.testY = 13;
         one.testY = 666;
         one.testNo = -1;
-        final Gson gson = new GsonBuilder()
-                .registerTypeAdapterFactory(new FlattenTypeAdapterFactory())
-                .create();
+        final Gson gson = Helper.createFlatteningGson();
+        final Gson gson_default = Helper.createDefaultGson();
 
-        final Gson gson_default = new Gson();
         String res = gson.toJson(one);
         assertNotNull(res);
         assertNotEquals("", res);
