@@ -5,40 +5,40 @@
 ### Library to collapse inner objects when parsing json
 
 1. To use library you should add it in gradle:
-```gradle
-    compile 'org.itishka.gson-flatten:gson-flatten:0.4'
-```
+    ```gradle
+        compile 'org.itishka.gson-flatten:gson-flatten:0.4'
+    ```
 
 2. Then register it in your gson builder:
-```java
-final Gson gson = new GsonBuilder()
-          .registerTypeAdapterFactory(new FlattenTypeAdapterFactory())
-          .create();
-```
+    ```java
+    final Gson gson = new GsonBuilder()
+              .registerTypeAdapterFactory(new FlattenTypeAdapterFactory())
+              .create();
+    ```
 3. Define your class and use `@Flatten` annotation to get data from embedded objects. For example class
-``` java
-class Weather {
-  @Flatten("temperature::min")
-  int min_temperture;
-  @Flatten("temperature::max")
-  int max_temperture;
-}
-```
-will be filled with data from json
-``` json
-{
-  "temperature": {
-     "min": -273,
-     "max": 1000
-  }
-}
-```
+    ``` java
+    class Weather {
+      @Flatten("temperature::min")
+      int min_temperture;
+      @Flatten("temperature::max")
+      int max_temperture;
+    }
+    ```
+    will be filled with data from json
+    ``` json
+    {
+      "temperature": {
+         "min": -273,
+         "max": 1000
+      }
+    }
+    ```
 
 4. Then just parse or serialize json as your usually do:
-```java
-  String json = gson.toJson(weather);
-  Weather weather2 = gson.fromJson(json, Weather.class);
-```
+    ```java
+      String json = gson.toJson(weather);
+      Weather weather2 = gson.fromJson(json, Weather.class);
+    ```
 
 ### Additional features
 You can skip field name if it equlas in inner object and outer one. E.g.:
