@@ -41,7 +41,7 @@
     ```
 
 ### Additional features
-You can skip field name if it equlas in inner object and outer one. E.g.:
+* You can skip field name if it equlas in inner object and outer one. E.g.:
 ```java
 class Weather {
     @Flatten("temperature::")
@@ -49,4 +49,12 @@ class Weather {
     @Flatten("temperature::")
     int max;
 }
+```
+
+* If you are using Gson with some FieldNamingStrategies, do not forget to provide them to `FlattenTypeAdapterFactory`:
+```java
+final Gson gson = new GsonBuilder()
+          .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+          .registerTypeAdapterFactory(new FlattenTypeAdapterFactory(FieldNamingPolicy.UPPER_CAMEL_CASE))
+          .create();
 ```

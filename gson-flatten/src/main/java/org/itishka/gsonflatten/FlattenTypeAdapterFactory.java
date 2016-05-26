@@ -1,5 +1,7 @@
 package org.itishka.gsonflatten;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -19,6 +21,16 @@ import java.util.List;
  * Created by Tishka17 on 18.05.2016.
  */
 public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
+    final FieldNamingStrategy mFieldNamingStrategy;
+
+    public FlattenTypeAdapterFactory() {
+        mFieldNamingStrategy = FieldNamingPolicy.IDENTITY;
+    }
+
+    public FlattenTypeAdapterFactory(FieldNamingStrategy fieldNamingStrategy) {
+        mFieldNamingStrategy = fieldNamingStrategy;
+    }
+
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
         final TypeAdapter<T> delegateAdapter = gson.getDelegateAdapter(this, type);
         final TypeAdapter<JsonElement> defaultAdapter = gson.getAdapter(JsonElement.class);
@@ -82,7 +94,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
     }
 
 
-    private static ArrayList<FlattenCacheItem> buildCache(Class<?> root, Gson gson) {
+    private ArrayList<FlattenCacheItem> buildCache(Class<?> root, Gson gson) {
         ArrayList<FlattenCacheItem> cache = new ArrayList<>();
         final Field[] fields = root.getDeclaredFields();
         if (fields == null || fields.length == 0) {
@@ -101,7 +113,8 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
             flatten = field.getAnnotation(Flatten.class);
             path = flatten.value();
             type = field.getGenericType();
-            cacheItem = new FlattenCacheItem(path.split("::", -1), type, gson.getAdapter(type.getClass()), field.getName());
+            String name = mFieldNamingStrategy.translateName(field);
+            cacheItem = new FlattenCacheItem(path.split("::", -1), type, gson.getAdapter(type.getClass()), name);
             //check path
             for (int i = 0; i < cacheItem.path.length - 1; i++) {
                 if (cacheItem.path[i] == null || cacheItem.path[i].length() == 0) {
@@ -110,7 +123,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
             }
             int i = cacheItem.path.length - 1;
             if (cacheItem.path[i] == null || cacheItem.path[i].length() == 0) {
-                cacheItem.path[i] = cacheItem.name;
+                cacheItem.path[i] =  cacheItem.name;
             }
             cache.add(cacheItem);
         }
