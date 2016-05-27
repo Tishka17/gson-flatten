@@ -6,7 +6,15 @@
 
 1. To use library you should add it in gradle:
     ```gradle
-        compile 'org.itishka.gson-flatten:gson-flatten:0.4'
+    repositories {
+        maven {
+            url "https://dl.bintray.com/tishka17/maven"
+        }
+    }
+    ```
+and later:
+    ```gradle
+        compile 'org.itishka.gson-flatten:gson-flatten:0.5'
     ```
 
 2. Then register it in your gson builder:
