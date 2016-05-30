@@ -19,7 +19,7 @@ publish {
     groupId = 'org.itishka.gson-flatten'
     artifactId = 'gson-flatten'
     publishVersion = '0.5'
-    licences = ["GPL-3.0"]
+    licences = ["LGPL-3.0"]
     bintrayUser = properties.getProperty("bintray.user")
     bintrayKey = properties.getProperty("bintray.apikey")
     dryRun=false

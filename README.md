@@ -4,15 +4,7 @@
 # gson-flatten
 ### Library to collapse inner objects when parsing json
 
-1. To use library you should add it in gradle:
-    ```gradle
-    repositories {
-        maven {
-            url "https://dl.bintray.com/tishka17/maven"
-        }
-    }
-    ```
-and later:
+1. To use library you should add it in your build.gradle:
     ```gradle
         compile 'org.itishka.gson-flatten:gson-flatten:0.5'
     ```
@@ -66,3 +58,6 @@ final Gson gson = new GsonBuilder()
           .registerTypeAdapterFactory(new FlattenTypeAdapterFactory(FieldNamingPolicy.UPPER_CAMEL_CASE))
           .create();
 ```
+
+### License
+Gson-flatten is released under [LGPL 3.0 license](http://www.gnu.org/licenses/lgpl-3.0.txt)
