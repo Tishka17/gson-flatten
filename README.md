@@ -6,7 +6,7 @@
 
 1. To use library you should add it in your build.gradle:
     ```gradle
-        compile 'org.itishka.gson-flatten:gson-flatten:0.5'
+        compile 'org.itishka.gson-flatten:gson-flatten:0.6'
     ```
 
 2. Then register it in your gson builder:
@@ -51,7 +51,9 @@ class Weather {
 }
 ```
 
-* If you are using Gson with some FieldNamingStrategies, do not forget to provide them to `FlattenTypeAdapterFactory`:
+* If you are using Gson 2.7 with some FieldNamingStrategies with and gson-flatten 0.6 you do not need to do anything more!
+ 
+With previous versions of gson and gson-flatten you should provide `FieldNamingStrategy` to `FlattenTypeAdapterFactory`:
 ```java
 final Gson gson = new GsonBuilder()
           .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
