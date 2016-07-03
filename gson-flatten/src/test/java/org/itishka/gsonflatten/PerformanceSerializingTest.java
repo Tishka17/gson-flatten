@@ -21,6 +21,7 @@ public class PerformanceSerializingTest {
     }
 
     ClassFlat []array = new ClassFlat[1000000];
+    ClassComplex []array2 = new ClassComplex[1000000];
     private int count = 1000;
 
     @Before
@@ -29,6 +30,11 @@ public class PerformanceSerializingTest {
             ClassFlat a = new ClassFlat();
             a.testY = 1;
             a.testZ = 2;
+
+            ClassComplex b = new ClassComplex();
+            b.x = new ClassInner();
+            b.x.y = 1;
+            b.x.z = 2;
         }
     }
 
@@ -51,5 +57,26 @@ public class PerformanceSerializingTest {
             String s = gson.toJson(array);
         }
         System.out.println("Duration defaultBenchmark: "+(System.currentTimeMillis()-a));
+    }
+
+
+    private class ClassInner {
+        int y;
+        int z;
+    }
+
+    private class ClassComplex {
+        ClassInner x;
+    }
+
+
+    @Test
+    public void complexBenchmark() {
+        Long a = System.currentTimeMillis();
+        final Gson gson = Helper.createDefaultGson();
+        for (int i=0;i<count;i++) {
+            String s = gson.toJson(array2);
+        }
+        System.out.println("Duration complextBenchmark: "+(System.currentTimeMillis()-a));
     }
 }
