@@ -21,14 +21,8 @@ import java.util.List;
  * Created by Tishka17 on 18.05.2016.
  */
 public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
-    final FieldNamingStrategy mFieldNamingStrategy;
 
     public FlattenTypeAdapterFactory() {
-        mFieldNamingStrategy = FieldNamingPolicy.IDENTITY;
-    }
-
-    public FlattenTypeAdapterFactory(FieldNamingStrategy fieldNamingStrategy) {
-        mFieldNamingStrategy = fieldNamingStrategy;
     }
 
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
@@ -104,7 +98,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
         Type type;
         String path;
         FlattenCacheItem cacheItem;
-        List<FlattenCacheItem> list;
+        FieldNamingStrategy fieldNamingStrategy = gson.fieldNamingStrategy();
 
         for (Field field : fields) {
             if (!field.isAnnotationPresent(Flatten.class)) {
@@ -113,8 +107,8 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
             flatten = field.getAnnotation(Flatten.class);
             path = flatten.value();
             type = field.getGenericType();
-            String name = mFieldNamingStrategy.translateName(field);
-            cacheItem = new FlattenCacheItem(path.split("::", -1), type, gson.getAdapter(type.getClass()), name);
+            String name = fieldNamingStrategy.translateName(field);
+            cacheItem = new FlattenCacheItem(path.split("::", -1), gson.getAdapter(type.getClass()), name);
             //check path
             for (int i = 0; i < cacheItem.path.length - 1; i++) {
                 if (cacheItem.path[i] == null || cacheItem.path[i].length() == 0) {
@@ -137,7 +131,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
         final TypeAdapter adapter;
         final String name;
 
-        private FlattenCacheItem(String[] path, Type type, TypeAdapter adapter, String name) {
+        private FlattenCacheItem(String[] path, TypeAdapter adapter, String name) {
             this.path = path;
             this.adapter = adapter;
             this.name = name;

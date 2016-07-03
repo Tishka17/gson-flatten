@@ -8,7 +8,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.google.code.gson:gson:2.7'
     testCompile 'junit:junit:4.12'
 }
 
@@ -18,7 +18,7 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 publish {
     groupId = 'org.itishka.gson-flatten'
     artifactId = 'gson-flatten'
-    publishVersion = '0.5'
+    publishVersion = '0.6'
     licences = ["LGPL-3.0"]
     bintrayUser = properties.getProperty("bintray.user")
     bintrayKey = properties.getProperty("bintray.apikey")

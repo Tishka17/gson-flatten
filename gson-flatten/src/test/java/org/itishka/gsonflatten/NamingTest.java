@@ -32,7 +32,7 @@ public class NamingTest {
         String one = "{'x':{'y':1}}";
         final Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES)
-                .registerTypeAdapterFactory(new FlattenTypeAdapterFactory(FieldNamingPolicy.LOWER_CASE_WITH_DASHES))
+                .registerTypeAdapterFactory(new FlattenTypeAdapterFactory())
                 .create();
         ClassOne classOne = gson.fromJson(one, ClassOne.class);
         assertEquals(classOne.testY, 1);
@@ -43,7 +43,7 @@ public class NamingTest {
         String one = "{'x':{'y':1}}";
         final Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                .registerTypeAdapterFactory(new FlattenTypeAdapterFactory(FieldNamingPolicy.UPPER_CAMEL_CASE))
+                .registerTypeAdapterFactory(new FlattenTypeAdapterFactory())
                 .create();
         ClassOne classOne = gson.fromJson(one, ClassOne.class);
         assertEquals(classOne.testY, 1);
