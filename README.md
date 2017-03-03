@@ -62,4 +62,6 @@ final Gson gson = new GsonBuilder()
 ```
 
 ### License
+Based on https://github.com/noties/Flatten 
+
 Gson-flatten is released under [LGPL 3.0 license](http://www.gnu.org/licenses/lgpl-3.0.txt)
