@@ -12,10 +12,9 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
 publish {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
     groupId = 'org.itishka.gson-flatten'
     artifactId = 'gson-flatten'
     publishVersion = '0.6'
