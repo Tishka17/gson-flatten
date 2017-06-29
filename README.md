@@ -6,7 +6,7 @@
 
 1. To use library you should add it in your build.gradle:
     ```gradle
-        compile 'org.itishka.gson-flatten:gson-flatten:0.6'
+        compile 'org.itishka.gson-flatten:gson-flatten:0.7'
     ```
 
 2. Then register it in your gson builder:
@@ -50,7 +50,13 @@ class Weather {
     int max;
 }
 ```
-
+* You can get array items as well (tnx @tominsam):
+```java
+class SomeClass {
+    @Flatten("some_array::0")
+    int first_value;
+}
+```
 * If you are using Gson 2.7 with some FieldNamingStrategies with and gson-flatten 0.6 you do not need to do anything more!
  
 With previous versions of gson and gson-flatten you should provide `FieldNamingStrategy` to `FlattenTypeAdapterFactory`:
