@@ -1,9 +1,10 @@
 package org.itishka.gsonflatten;
 
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.FieldNamingStrategy;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -12,6 +13,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -32,16 +34,58 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
 
         TypeAdapter<T> result = new TypeAdapter<T>() {
             private void setElement(JsonObject root, String[] path, JsonElement data) {
-                JsonObject element = root;
+                JsonElement element = root;
                 for (int i = 0; i < path.length - 1; i++) {
-                    JsonObject object = element.getAsJsonObject(path[i]);
+                    // If the path element looks like a number..
+                    Integer index = null;
+                    try {
+                        index = Integer.valueOf(path[i]);
+                    } catch (NumberFormatException ignored) {
+                    }
+
+                    // Get the next object in the chain if it exists already
+                    JsonElement object = null;
+                    if (element instanceof JsonObject) {
+                        object = ((JsonObject) element).get(path[i]);
+                    } else if (element instanceof JsonArray && index != null) {
+                        if (index >= 0 && index < ((JsonArray)element).size()) {
+                            object = ((JsonArray) element).get(index);
+                        }
+                    } else {
+                        // Failure. We can't walk any further - we don't know
+                        // how to write this path. Maybe worth throwing exception?
+                        continue;
+                    }
+
+                    // Object didn't exist in the output already. Create it.
                     if (object == null) {
-                        object = new JsonObject();
-                        element.add(path[i], object);
+                        // The next element in the chain is an array
+                        if (path[i + 1].matches("^\\d+$")) {
+                            object = new JsonArray();
+                        } else {
+                            object = new JsonObject();
+                        }
+
+                        if (element instanceof JsonObject) {
+                            ((JsonObject) element).add(path[i], object);
+                        } else if (element instanceof JsonArray && index != null) {
+                            JsonArray array = (JsonArray) element;
+                            // Might need to pad the array out if we're writing an
+                            // index that doesn't exist yet.
+                            while (array.size() <= index) {
+                                array.add(JsonNull.INSTANCE);
+                            }
+                            array.set(index, object);
+                        }
                     }
                     element = object;
                 }
-                element.add(path[path.length - 1], data);
+
+                if (element instanceof JsonObject) {
+                    ((JsonObject) element).add(path[path.length - 1], data);
+                } else if (element instanceof JsonArray) {
+                    ((JsonArray) element).set(Integer.valueOf(path[path.length - 1]), data);
+                }
             }
 
             @Override
@@ -72,6 +116,12 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                     for (String s : cacheElement.path) {
                         if (element.isJsonObject()) {
                             element = element.getAsJsonObject().get(s);
+                        } else if (element.isJsonArray()) {
+                            try {
+                                element = element.getAsJsonArray().get(Integer.valueOf(s));
+                            } catch (NumberFormatException|IndexOutOfBoundsException e) {
+                                element = null;
+                            }
                         } else {
                             element = null;
                             break;
@@ -87,11 +137,25 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
         return result;
     }
 
+    // Find annotated fields of the class and any superclasses
+    private static List<Field> getAnnotatedFields(Class klass, Class<? extends Annotation> annotationClass) {
+        List<Field> fields = new ArrayList<>();
+        while (klass != null) {
+            for (Field field : klass.getDeclaredFields()) {
+                if (field.isAnnotationPresent(annotationClass)) {
+                    fields.add(field);
+                }
+            }
+            // Walk up class hierarchy
+            klass = klass.getSuperclass();
+        }
+        return fields;
+    }
 
     private ArrayList<FlattenCacheItem> buildCache(Class<?> root, Gson gson) {
         ArrayList<FlattenCacheItem> cache = new ArrayList<>();
-        final Field[] fields = root.getDeclaredFields();
-        if (fields == null || fields.length == 0) {
+        final List<Field> fields = getAnnotatedFields(root, Flatten.class);
+        if (fields.size() == 0) {
             return cache;
         }
         Flatten flatten;
@@ -101,9 +165,6 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
         FieldNamingStrategy fieldNamingStrategy = gson.fieldNamingStrategy();
 
         for (Field field : fields) {
-            if (!field.isAnnotationPresent(Flatten.class)) {
-                continue;
-            }
             flatten = field.getAnnotation(Flatten.class);
             path = flatten.value();
             type = field.getGenericType();
@@ -125,13 +186,13 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
         return cache;
     }
 
-    private static class FlattenCacheItem {
+    protected static class FlattenCacheItem {
 
         final String[] path;
         final TypeAdapter adapter;
         final String name;
 
-        private FlattenCacheItem(String[] path, TypeAdapter adapter, String name) {
+        protected FlattenCacheItem(String[] path, TypeAdapter adapter, String name) {
             this.path = path;
             this.adapter = adapter;
             this.name = name;

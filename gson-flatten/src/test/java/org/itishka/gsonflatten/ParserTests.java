@@ -30,17 +30,33 @@ public class ParserTests {
         int testY;
         @Flatten("x::z")
         int testZ;
+        @Flatten("arr::0")
+        int testArray1;
+        @Flatten("arr::1::x")
+        int testArray2;
+        @Flatten("arr::0::x")
+        int testArray3;
         @SerializedName("no")
         int testNo;
+        @Flatten("arr::nan")
+        int testBarParse1;
+        @Flatten("arr::4")
+        int testBarParse2;
     }
 
     @Test
     public void test_parse_two() {
-        String one = "{'x':{'y':1, 'z':2}, 'no':-1}";
+        String one = "{'x':{'y':1, 'z':2}, 'no':-1, 'arr':['3', {'x': 4}]}";
         final Gson gson = Helper.createFlatteningGson();
         ClassTwo classTwo = gson.fromJson(one, ClassTwo.class);
         assertEquals(1, classTwo.testY);
         assertEquals(2, classTwo.testZ);
         assertEquals(-1, classTwo.testNo);
+        assertEquals(3, classTwo.testArray1);
+        assertEquals(4, classTwo.testArray2);
+        assertEquals(0, classTwo.testArray3);
+        assertEquals(0, classTwo.testBarParse1);
+        assertEquals(0, classTwo.testBarParse2);
     }
+
 }
