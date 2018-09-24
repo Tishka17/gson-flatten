@@ -58,7 +58,7 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                     }
 
                     // Object didn't exist in the output already. Create it.
-                    if (object == null) {
+                    if (object == null || object.equals(JsonNull.INSTANCE)) {
                         // The next element in the chain is an array
                         if (path[i + 1].matches("^\\d+$")) {
                             object = new JsonArray();
