@@ -17,7 +17,7 @@ publish {
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
     groupId = 'org.itishka.gson-flatten'
     artifactId = 'gson-flatten'
-    publishVersion = '0.6'
+    publishVersion = '0.8.1'
     licences = ["LGPL-3.0"]
     bintrayUser = properties.getProperty("bintray.user")
     bintrayKey = properties.getProperty("bintray.apikey")
