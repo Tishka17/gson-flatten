@@ -113,18 +113,20 @@ public class FlattenTypeAdapterFactory implements TypeAdapterFactory {
                 JsonObject root = rootElement.getAsJsonObject();
                 for (FlattenCacheItem cacheElement : cache) {
                     JsonElement element = root;
-                    for (String s : cacheElement.path) {
-                        if (element.isJsonObject()) {
-                            element = element.getAsJsonObject().get(s);
-                        } else if (element.isJsonArray()) {
-                            try {
-                                element = element.getAsJsonArray().get(Integer.valueOf(s));
-                            } catch (NumberFormatException|IndexOutOfBoundsException e) {
+                    if (element != null) {
+                        for (String s : cacheElement.path) {
+                            if (element.isJsonObject()) {
+                                element = element.getAsJsonObject().get(s);
+                            } else if (element.isJsonArray()) {
+                                try {
+                                    element = element.getAsJsonArray().get(Integer.valueOf(s));
+                                } catch (NumberFormatException|IndexOutOfBoundsException e) {
+                                    element = null;
+                                }
+                            } else {
                                 element = null;
+                                break;
                             }
-                        } else {
-                            element = null;
-                            break;
                         }
                     }
                     rootElement.getAsJsonObject().add(cacheElement.name, element);// FIXME: 19.05.2016 serializedName
